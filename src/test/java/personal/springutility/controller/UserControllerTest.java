@@ -37,6 +37,7 @@ class UserControllerTest {
             .email("valid2@testmail.com")
             .password("aaaaAAAA1234@")
             .build();
+    private final UserToRegisterDto userToRegisterDto = new UserToRegisterDto();
     @MockBean
     UserService userService;
     @MockBean
@@ -47,7 +48,6 @@ class UserControllerTest {
     PasswordEncoder passwordEncoder;
     @MockBean
     GlobalExceptionHandler globalExceptionHandler;
-    private final UserToRegisterDto userToRegisterDto = new UserToRegisterDto();
 
     public UserControllerTest() {
         mockUserService = mock(UserService.class);
