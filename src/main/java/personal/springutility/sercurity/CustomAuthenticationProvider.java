@@ -28,7 +28,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (passwordEncoder.matches(password, userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
         }
-        throw new BadEmailPassword("Could not authenticate User");
+        throw new BadEmailPassword("Could not authenticate user");
     }
 
     @Override

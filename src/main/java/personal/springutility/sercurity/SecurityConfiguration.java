@@ -17,6 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import personal.springutility.controller.Mappings;
 import personal.springutility.sercurity.jwt.JwtConfig;
 import personal.springutility.sercurity.jwt.JwtUsernamePasswordFilter;
+import personal.springutility.sercurity.jwt.JwtVerifierFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated();
         http.addFilter(jwtUsernamePasswordFilter());
+        http.addFilterAfter(new JwtVerifierFilter(jwtConfig), JwtUsernamePasswordFilter.class);
     }
 
     @Override
