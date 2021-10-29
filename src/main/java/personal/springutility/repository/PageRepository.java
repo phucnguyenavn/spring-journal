@@ -13,4 +13,8 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
             "from Page p where p.userCreatedPage.id=?2 " +
             "and p.userCreatedPage.userId=?1")
     List<Page> findAll(Integer userId, Integer createdPageId);
+
+    @Query(value = "Select p from Page p " +
+            "where p.id=?1 and p.userCreatedPage.id = ?2")
+    Page findOne(Integer pageId,Integer createdPageId);
 }

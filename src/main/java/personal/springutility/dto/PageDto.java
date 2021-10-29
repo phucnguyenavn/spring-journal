@@ -9,15 +9,20 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class PartOfPageDto {
+@NoArgsConstructor
+@Builder
+public class PageDto {
+
     private Integer id;
 
     private String title;
 
     private String emoji;
+
+    private String content;
+
+    private String scale;
 
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     private LocalDateTime created;

@@ -3,6 +3,7 @@ package personal.springutility.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import personal.springutility.dto.PageDto;
 import personal.springutility.dto.PartOfPageDto;
 import personal.springutility.dto.UserAddPageDto;
 import personal.springutility.exception.DataNotFound;
@@ -25,8 +26,7 @@ import java.util.stream.Collectors;
 public class JournalService {
 
     private static final String ADD_ERROR = "Could not add new page";
-    private static final String ADD_ERROR_USER = ", invalid user id : %d ";
-    private static final String FIND_ERROR ="Could not retrieve data";
+    private static final String FIND_ERROR ="Could not retrieve journal page(s)";
 
     private final PageRepository pageRepository;
     private final UserCreatedPageRepository userCreatedPageRepository;
@@ -47,10 +47,8 @@ public class JournalService {
             Page page = toPage(userAddPageDto);
             page.setUserCreatedPage(userCreatedPage);
             pageRepository.save(page);
-        } catch (DataAccessException ex) {
+        } catch (DataAccessException | NullPointerException ex) {
             throw new ServerError(ADD_ERROR);
-        } catch (NullPointerException ex) {
-            throw new DataNotFound(String.format(ADD_ERROR + ADD_ERROR_USER, userId));
         }
     }
 
@@ -58,12 +56,20 @@ public class JournalService {
         try {
             List<Page> pages = pageRepository.findAll(userId,createdPageId);
             return toPartOfPageDtoList(pages);
-        } catch (DataAccessException ex) {
+        } catch (DataAccessException | NullPointerException ex) {
             throw new DataNotFound(FIND_ERROR);
-        }catch (NullPointerException ex) {
-            throw new DataNotFound("Failed retrieving data");
         }
     }
+
+    public PageDto findOne(Integer pageId,Integer createdPageId) {
+        try {
+            Page page = pageRepository.findOne(pageId, createdPageId);
+            return toPageDto(page);
+        } catch (DataAccessException | NullPointerException ex) {
+            throw new DataNotFound(FIND_ERROR);
+        }
+    }
+
     private Page toPage(UserAddPageDto userAddPageDto) {
         return Page.builder()
                 .title(userAddPageDto.getTitle())
@@ -71,6 +77,17 @@ public class JournalService {
                 .created(userAddPageDto.getCreated())
                 .emoji(stringUtils.toByte(userAddPageDto.getEmoji()))
                 .scale(RatingScale.of(userAddPageDto.getScale()))
+                .build();
+    }
+
+    private PageDto toPageDto(Page page){
+        return PageDto.builder()
+                .id(page.getId())
+                .title(page.getTitle())
+                .content(page.getContent())
+                .emoji(stringUtils.toBase64(page.getEmoji()))
+                .scale(page.getScale().name())
+                .created(page.getCreated())
                 .build();
     }
 
@@ -86,4 +103,6 @@ public class JournalService {
                             .build())
                 .collect(Collectors.toList());
     }
+
+
 }

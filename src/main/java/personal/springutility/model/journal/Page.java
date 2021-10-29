@@ -1,5 +1,6 @@
 package personal.springutility.model.journal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class Page {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_created_page_id", referencedColumnName = "id")
+    @JsonIgnore
     private UserCreatedPage userCreatedPage;
 
     public Page(Integer id, String title, byte[] emoji, LocalDateTime created) {
@@ -40,4 +42,5 @@ public class Page {
         this.emoji = emoji;
         this.created = created;
     }
+
 }

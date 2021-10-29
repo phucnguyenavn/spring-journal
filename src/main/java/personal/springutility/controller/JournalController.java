@@ -3,6 +3,7 @@ package personal.springutility.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import personal.springutility.dto.PageDto;
 import personal.springutility.dto.PartOfPageDto;
 import personal.springutility.dto.UserAddPageDto;
 import personal.springutility.model.journal.Page;
@@ -34,5 +35,13 @@ public class JournalController {
     public List<PartOfPageDto> findAll(@PathVariable Integer userId,
                                        @PathVariable Integer createdPageId){
         return journalService.findAll(userId, createdPageId);
+    }
+
+    @PostMapping(Endpoints.FIND_ONE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public PageDto findOne(@PathVariable Integer createdPageId,
+                           @RequestParam("pageId") Integer pageId){
+        return journalService.findOne(pageId,createdPageId);
     }
 }
