@@ -10,7 +10,9 @@ import personal.springutility.exception.ResourceExisted;
 import personal.springutility.model.account.Role;
 import personal.springutility.model.account.RoleType;
 import personal.springutility.model.account.User;
+import personal.springutility.model.journal.UserCreatedPage;
 import personal.springutility.repository.RoleRepository;
+import personal.springutility.repository.UserCreatedPageRepository;
 import personal.springutility.repository.UserRepository;
 
 import java.util.Optional;
@@ -24,12 +26,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserCreatedPageRepository userCreatedPageRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserCreatedPageRepository userCreatedPageRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userCreatedPageRepository = userCreatedPageRepository;
     }
 
 
@@ -39,7 +43,9 @@ public class UserService {
                 .password(userToRegisterDto.getPassword())
                 .build();
         findEmail(userToRegisterDto.getEmail());
-        userRepository.save(createNewUser(userToRegister));
+        User user = createNewUser(userToRegister);
+        userRepository.save(user);
+        userCreatedPageRepository.save(createUserCreatedPage(user));
         return userToRegister;
     }
 
@@ -60,4 +66,9 @@ public class UserService {
                 .build();
     }
 
+    private UserCreatedPage createUserCreatedPage(User user) {
+        UserCreatedPage userCreatedPage = new UserCreatedPage();
+        userCreatedPage.setUserId(user.getId());
+        return userCreatedPage;
+    }
 }

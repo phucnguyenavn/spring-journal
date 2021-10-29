@@ -1,5 +1,5 @@
 ## Goals
-- A place where I can keep track of myself whether it is thought or activity, mood.
+- An app where I can keep track of myself whether it is thought or activity, mood.
 ## TODOS
 - ~~User System~~
 - Journal

@@ -1,86 +1,46 @@
 package personal.springutility.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import personal.springutility.dto.UserToRegisterDto;
-import personal.springutility.exception.handler.GlobalExceptionHandler;
-import personal.springutility.model.account.User;
-import personal.springutility.repository.RoleRepository;
-import personal.springutility.repository.UserRepository;
-import personal.springutility.service.UserService;
 
-import java.util.Optional;
-import java.util.regex.Pattern;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-
-@SpringBootTest(classes = {UserService.class})
+@SpringBootTest
+@AutoConfigureMockMvc
+@AutoConfigureRestDocs(outputDir = "target/snippets")
 class UserControllerTest {
 
-    private final UserController userController;
-    private final UserService mockUserService;
-    private final User validUser = User.builder()
-            .email("valid@testmail.com")
-            .password("aaaaAAAA1234")
-            .build();
-    private final User validUser2 = User.builder()
-            .email("valid2@testmail.com")
-            .password("aaaaAAAA1234@")
-            .build();
-    private final UserToRegisterDto userToRegisterDto = new UserToRegisterDto();
-    @MockBean
-    UserService userService;
-    @MockBean
-    UserRepository userRepository;
-    @MockBean
-    RoleRepository roleRepository;
-    @MockBean
-    PasswordEncoder passwordEncoder;
-    @MockBean
-    GlobalExceptionHandler globalExceptionHandler;
-
-    public UserControllerTest() {
-        mockUserService = mock(UserService.class);
-        userController = new UserController(mockUserService);
-    }
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
-    void givenValidUser_returnSavedUser() {
-        when(mockUserService.register(any(UserToRegisterDto.class))).thenReturn(validUser);
-        assertThat(userRepository.findByEmail(validUser.getEmail())).isNotNull();
+    void login() throws Exception {
+        String url = "http://localhost:8080/api/auth/login";
+        UserToRegisterDto userToRegisterDto = new UserToRegisterDto(
+                "valid@testmail.com",
+                "abc123"
+        );
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
+        String requestJson = writer.writeValueAsString(userToRegisterDto);
+
+        // when & then
+        this.mockMvc.perform(post(url).contentType(MediaType.APPLICATION_JSON).content(requestJson))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("login"));
     }
-
-    @Test
-    void givenNullUser_assertNoInteraction() {
-        when(mockUserService.register(null)).thenThrow(NullPointerException.class);
-    }
-
-    @Test
-    void throwExIfEmailInUse() {
-        // given
-        given(userRepository.findByEmail(anyString())).willReturn(Optional.of(mock(User.class)));
-        //then
-        then(userRepository).shouldHaveNoInteractions();
-
-    }
-
-    @Test
-    void pattern() {
-        String pw = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
-        String eP = "^\\S+@\\S+$";
-        assertTrue(Pattern.matches(pw, validUser.getPassword()));
-        assertTrue(Pattern.matches(eP, validUser.getEmail()));
-
-    }
-
 }
