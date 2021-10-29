@@ -12,13 +12,12 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAddPageDto {
+public class PartOfPageDto {
+    private Integer id;
 
     private String title;
 
     private String emoji;
-
-    private String content;
 
     private String scale;
 

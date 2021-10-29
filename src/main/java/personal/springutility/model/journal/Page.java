@@ -33,4 +33,11 @@ public class Page {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_created_page_id", referencedColumnName = "id")
     private UserCreatedPage userCreatedPage;
+
+    public Page(Integer id, String title, byte[] emoji, LocalDateTime created) {
+        this.id = id;
+        this.title = title;
+        this.emoji = emoji;
+        this.created = created;
+    }
 }

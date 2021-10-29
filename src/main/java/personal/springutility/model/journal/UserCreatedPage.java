@@ -18,7 +18,8 @@ public class UserCreatedPage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "userCreatedPage")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+            mappedBy = "userCreatedPage")
     private Set<Page> pages;
 
     @Column(name = "user_id")
