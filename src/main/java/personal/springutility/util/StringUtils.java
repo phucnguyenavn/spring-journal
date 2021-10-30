@@ -3,7 +3,6 @@ package personal.springutility.util;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
-import java.util.List;
 
 @Component
 public class StringUtils {

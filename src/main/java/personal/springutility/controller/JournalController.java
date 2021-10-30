@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import personal.springutility.dto.PageDto;
 import personal.springutility.dto.PartOfPageDto;
 import personal.springutility.dto.UserAddPageDto;
-import personal.springutility.model.journal.Page;
 import personal.springutility.service.JournalService;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public class JournalController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<PartOfPageDto> findAll(@PathVariable Integer userId,
-                                       @PathVariable Integer createdPageId){
+                                       @PathVariable Integer createdPageId) {
         return journalService.findAll(userId, createdPageId);
     }
 
@@ -41,7 +40,15 @@ public class JournalController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public PageDto findOne(@PathVariable Integer createdPageId,
-                           @RequestParam("pageId") Integer pageId){
-        return journalService.findOne(pageId,createdPageId);
+                           @RequestParam("pageId") Integer pageId) {
+        return journalService.findOne(pageId, createdPageId);
+    }
+
+    @PostMapping(Endpoints.DELETE_ONE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteOne(@PathVariable Integer userId,
+                          @PathVariable Integer createdPageId,
+                          @PathVariable Integer pageId) {
+        journalService.deleteOne(userId, createdPageId, pageId);
     }
 }

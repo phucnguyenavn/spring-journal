@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class SpringUtilityApplication {
 
-    @Bean
-    public ModelMapper mapper(){
-        return new ModelMapper();
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(SpringUtilityApplication.class, args);
+    }
+
+    @Bean
+    public ModelMapper mapper() {
+        return new ModelMapper();
     }
 
 }

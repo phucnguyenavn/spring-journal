@@ -13,11 +13,8 @@ import personal.springutility.model.journal.RatingScale;
 import personal.springutility.model.journal.UserCreatedPage;
 import personal.springutility.repository.PageRepository;
 import personal.springutility.repository.UserCreatedPageRepository;
-import personal.springutility.util.Mappers;
 import personal.springutility.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +23,8 @@ import java.util.stream.Collectors;
 public class JournalService {
 
     private static final String ADD_ERROR = "Could not add new page";
-    private static final String FIND_ERROR ="Could not retrieve journal page(s)";
+    private static final String FIND_ERROR = "Could not retrieve journal page(s)";
+    private static final String DELETE_ERROR = "Could not delete page";
 
     private final PageRepository pageRepository;
     private final UserCreatedPageRepository userCreatedPageRepository;
@@ -54,19 +52,27 @@ public class JournalService {
 
     public List<PartOfPageDto> findAll(Integer userId, Integer createdPageId) {
         try {
-            List<Page> pages = pageRepository.findAll(userId,createdPageId);
+            List<Page> pages = pageRepository.findAll(userId, createdPageId);
             return toPartOfPageDtoList(pages);
         } catch (DataAccessException | NullPointerException ex) {
             throw new DataNotFound(FIND_ERROR);
         }
     }
 
-    public PageDto findOne(Integer pageId,Integer createdPageId) {
+    public PageDto findOne(Integer pageId, Integer createdPageId) {
         try {
             Page page = pageRepository.findOne(pageId, createdPageId);
             return toPageDto(page);
         } catch (DataAccessException | NullPointerException ex) {
             throw new DataNotFound(FIND_ERROR);
+        }
+    }
+
+    public void deleteOne(Integer userId, Integer createdPageId, Integer pageId) {
+        try {
+            pageRepository.deleteOne(userId, createdPageId, pageId);
+        } catch (DataAccessException | NullPointerException ex) {
+            throw new ServerError(DELETE_ERROR);
         }
     }
 
@@ -80,7 +86,7 @@ public class JournalService {
                 .build();
     }
 
-    private PageDto toPageDto(Page page){
+    private PageDto toPageDto(Page page) {
         return PageDto.builder()
                 .id(page.getId())
                 .title(page.getTitle())
@@ -91,16 +97,16 @@ public class JournalService {
                 .build();
     }
 
-    private List<PartOfPageDto> toPartOfPageDtoList(List<Page> pages){
+    private List<PartOfPageDto> toPartOfPageDtoList(List<Page> pages) {
         return pages
                 .stream()
                 .map(page ->
-                     PartOfPageDto.builder()
-                            .id(page.getId())
-                            .created(page.getCreated())
-                            .title(page.getTitle())
-                            .emoji(stringUtils.toBase64(page.getEmoji()))
-                            .build())
+                        PartOfPageDto.builder()
+                                .id(page.getId())
+                                .created(page.getCreated())
+                                .title(page.getTitle())
+                                .emoji(stringUtils.toBase64(page.getEmoji()))
+                                .build())
                 .collect(Collectors.toList());
     }
 

@@ -6,7 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import personal.springutility.exception.*;
+import personal.springutility.exception.BadEmailPassword;
+import personal.springutility.exception.DataNotFound;
+import personal.springutility.exception.ResourceExisted;
+import personal.springutility.exception.ServerError;
 import personal.springutility.exception.model.ExceptionResponse;
 
 import java.time.LocalDateTime;
