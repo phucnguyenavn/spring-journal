@@ -62,4 +62,5 @@ public class GlobalExceptionHandler {
         response.setErrorAt(LocalDateTime.now());
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
+
 }
