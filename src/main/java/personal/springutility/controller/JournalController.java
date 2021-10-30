@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import personal.springutility.dto.PageDto;
 import personal.springutility.dto.PartOfPageDto;
-import personal.springutility.dto.UserAddPageDto;
 import personal.springutility.service.JournalService;
 
 import java.util.List;
@@ -24,8 +23,8 @@ public class JournalController {
     @PostMapping(Endpoints.ADD_PAGE)
     @ResponseStatus(HttpStatus.CREATED)
     public void addPage(@PathVariable Integer userId,
-                        @RequestBody UserAddPageDto userAddPageDto) {
-        journalService.addPage(userId, userAddPageDto);
+                        @RequestBody PageDto pageDto) {
+        journalService.addPage(userId, pageDto);
     }
 
     @PostMapping(Endpoints.FIND_ALL)
@@ -50,5 +49,13 @@ public class JournalController {
                           @PathVariable Integer createdPageId,
                           @PathVariable Integer pageId) {
         journalService.deleteOne(userId, createdPageId, pageId);
+    }
+
+    @PostMapping(Endpoints.UPDATE_PAGE)
+    @ResponseStatus(HttpStatus.OK)
+    public void update(@PathVariable Integer userId,
+                       @PathVariable Integer createdPageId,
+                       @RequestBody PageDto pageDto) {
+        journalService.update(userId, createdPageId, pageDto);
     }
 }

@@ -32,4 +32,5 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
     void deleteOne(@Param("userId") Integer userId,
                    @Param("createdPageId") Integer createdPageId,
                    @Param("pageId") Integer pageId);
+
 }
