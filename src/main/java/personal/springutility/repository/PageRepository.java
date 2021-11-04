@@ -15,7 +15,7 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
     @Query(value = "Select " +
             "new Page(p.id, p.title, p.emoji,p.created) " +
             "from Page p where p.userCreatedPage.id=?2 " +
-            "and p.userCreatedPage.userId=?1")
+            "and p.userCreatedPage.userId=?1 order by p.id desc ")
     List<Page> findAll(Integer userId, Integer createdPageId);
 
     @Query(value = "Select p from Page p " +

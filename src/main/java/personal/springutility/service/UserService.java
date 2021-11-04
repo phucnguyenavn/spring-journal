@@ -2,6 +2,7 @@ package personal.springutility.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import personal.springutility.dto.UserToRegisterDto;
@@ -22,7 +23,8 @@ import java.util.Set;
 @Service
 public class UserService {
 
-    private static final String EMAIL_ALREADY_EXISTS = "This %s already registered";
+    private final String EMAIL_ALREADY_EXISTS = "This %s already registered";
+    private final String DATA_NOT_FOUND = "This %s is no where to be found";
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -49,6 +51,14 @@ public class UserService {
         return userToRegister;
     }
 
+    public Integer findByEmail(String email) {
+        try{
+            return userRepository.findIdByEmail(email);
+        }catch (DataAccessException ex){
+            throw new DataNotFound(String.format(DATA_NOT_FOUND,email));
+        }
+    }
+
     private void findEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
@@ -71,4 +81,6 @@ public class UserService {
         userCreatedPage.setUserId(user.getId());
         return userCreatedPage;
     }
+
+
 }

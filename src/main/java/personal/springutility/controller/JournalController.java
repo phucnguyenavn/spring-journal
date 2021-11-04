@@ -20,14 +20,14 @@ public class JournalController {
     }
 
 
-    @PostMapping(Endpoints.ADD_PAGE)
+    @PostMapping(JournalEndpoints.ADD_PAGE)
     @ResponseStatus(HttpStatus.CREATED)
     public void addPage(@PathVariable Integer userId,
                         @RequestBody PageDto pageDto) {
         journalService.addPage(userId, pageDto);
     }
 
-    @PostMapping(Endpoints.FIND_ALL)
+    @PostMapping(JournalEndpoints.FIND_ALL)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<PartOfPageDto> findAll(@PathVariable Integer userId,
@@ -35,7 +35,7 @@ public class JournalController {
         return journalService.findAll(userId, createdPageId);
     }
 
-    @PostMapping(Endpoints.FIND_ONE)
+    @PostMapping(JournalEndpoints.FIND_ONE)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public PageDto findOne(@PathVariable Integer createdPageId,
@@ -43,7 +43,7 @@ public class JournalController {
         return journalService.findOne(pageId, createdPageId);
     }
 
-    @PostMapping(Endpoints.DELETE_ONE)
+    @PostMapping(JournalEndpoints.DELETE_ONE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOne(@PathVariable Integer userId,
                           @PathVariable Integer createdPageId,
@@ -51,7 +51,7 @@ public class JournalController {
         journalService.deleteOne(userId, createdPageId, pageId);
     }
 
-    @PostMapping(Endpoints.UPDATE_PAGE)
+    @PostMapping(JournalEndpoints.UPDATE_PAGE)
     @ResponseStatus(HttpStatus.OK)
     public void update(@PathVariable Integer userId,
                        @PathVariable Integer createdPageId,
