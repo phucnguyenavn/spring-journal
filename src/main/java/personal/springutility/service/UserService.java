@@ -11,9 +11,9 @@ import personal.springutility.exception.ResourceExisted;
 import personal.springutility.model.account.Role;
 import personal.springutility.model.account.RoleType;
 import personal.springutility.model.account.User;
-import personal.springutility.model.journal.UserCreatedPage;
+import personal.springutility.model.journal.UserJournal;
 import personal.springutility.repository.RoleRepository;
-import personal.springutility.repository.UserCreatedPageRepository;
+import personal.springutility.repository.UserJournalRepository;
 import personal.springutility.repository.UserRepository;
 
 import java.util.Optional;
@@ -28,14 +28,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserCreatedPageRepository userCreatedPageRepository;
+    private final UserJournalRepository userJournalRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserCreatedPageRepository userCreatedPageRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserJournalRepository userJournalRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userCreatedPageRepository = userCreatedPageRepository;
+        this.userJournalRepository = userJournalRepository;
     }
 
 
@@ -47,7 +47,7 @@ public class UserService {
         findEmail(userToRegisterDto.getEmail());
         User user = createNewUser(userToRegister);
         userRepository.save(user);
-        userCreatedPageRepository.save(createUserCreatedPage(user));
+        userJournalRepository.save(createUserJournal(user));
         return userToRegister;
     }
 
@@ -76,10 +76,10 @@ public class UserService {
                 .build();
     }
 
-    private UserCreatedPage createUserCreatedPage(User user) {
-        UserCreatedPage userCreatedPage = new UserCreatedPage();
-        userCreatedPage.setUserId(user.getId());
-        return userCreatedPage;
+    private UserJournal createUserJournal(User user) {
+        UserJournal userJournal = new UserJournal();
+        userJournal.setUserId(user.getId());
+        return userJournal;
     }
 
 

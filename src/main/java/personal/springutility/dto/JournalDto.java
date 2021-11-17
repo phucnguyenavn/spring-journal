@@ -6,19 +6,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class PartOfPageDto {
-    private Integer id;
+@NoArgsConstructor
+@Builder
+public class JournalDto {
+
 
     private String title;
 
     private String emoji;
 
-    @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
-    private LocalDateTime created;
+    private String content;
+
+    private String mood;
+
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate created;
+
 }

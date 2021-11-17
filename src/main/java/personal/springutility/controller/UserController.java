@@ -1,6 +1,5 @@
 package personal.springutility.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import personal.springutility.service.UserService;
@@ -17,8 +16,8 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(UserEndpoints.FIND_ONE)
-    public ResponseEntity<Object> findUser(@RequestParam("email") String email){
+    @PostMapping(Endpoints.FIND_USER_ID)
+    public ResponseEntity<Object> findUserId(@RequestParam("email") String email){
        Integer id =  userService.findByEmail(email);
        return ResponseEntity.ok(Collections.singletonMap("id", id));
     }

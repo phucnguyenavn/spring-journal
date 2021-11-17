@@ -7,20 +7,20 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.Set;
 
-@Entity(name = "UserCreatedPage")
-@Table(name = "user_created_page")
+@Entity(name = "UserJournal")
+@Table(name = "user_journal")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreatedPage {
+public class UserJournal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,
-            mappedBy = "userCreatedPage")
-    private Set<Page> pages;
+            mappedBy = "userJournal")
+    private Set<Journal> journals;
 
     @Column(name = "user_id")
     private Integer userId;
