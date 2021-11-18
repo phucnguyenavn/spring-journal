@@ -4,6 +4,8 @@ package personal.springutility.controller;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import personal.springutility.dto.JournalList;
+import personal.springutility.dto.SyncDto;
 import personal.springutility.service.JournalService;
 
 import java.util.Collections;
@@ -22,5 +24,16 @@ public class JournalController {
     public ResponseEntity<?> findUserJournalId(@Param("userId") Integer userId){
         Integer id = journalService.findUserJournalId(userId);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
+    }
+
+    @PostMapping(Endpoints.PULL_JOURNAL)
+    public ResponseEntity<?> pullJournals(@RequestBody JournalList journalList){
+        journalService.pullJournals(journalList);
+        return ResponseEntity.ok("Successfully pulled journals");
+    }
+    @PostMapping(Endpoints.INSTRUCT_SYNC_JOURNAL)
+    public ResponseEntity<?> instructJournalSync(@RequestBody SyncDto syncDto){
+        String instruction = journalService.instructJournalSync(syncDto);
+        return ResponseEntity.ok(Collections.singletonMap("instruction", instruction));
     }
 }

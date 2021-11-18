@@ -11,5 +11,5 @@ public interface UserJournalRepository extends JpaRepository<UserJournal, Intege
             "WHERE u.userId=?1")
     Integer findUserJournalId(Integer userId);
 
-
+    UserJournal findByIdAndUserId(Integer userJournalId, Integer userId);
 }

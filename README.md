@@ -19,4 +19,5 @@ value.~~ @Query("Delete ... exists (select ...)").
 - Registration user 27/10
 - Authentication filter 28/10
 - Authorization filter 28/10
-- Journal : Add, FindAll, FindOne 29/10, DeleteOne 30/10
+~~- Journal : Add, FindAll, FindOne 29/10, DeleteOne 30/10~~
+- Refactor Journal.

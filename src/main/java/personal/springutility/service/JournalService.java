@@ -3,25 +3,87 @@ package personal.springutility.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import personal.springutility.dto.JournalList;
+import personal.springutility.dto.SyncDto;
 import personal.springutility.exception.DataNotFound;
+import personal.springutility.exception.ServerError;
+import personal.springutility.model.journal.Journal;
+import personal.springutility.model.journal.UserJournal;
+import personal.springutility.model.sync.JournalSync;
+import personal.springutility.repository.JournalRepository;
+import personal.springutility.repository.JournalSyncRepository;
 import personal.springutility.repository.UserJournalRepository;
+import personal.springutility.util.Mappers;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Log4j2
 @Service
 public class JournalService {
 
+    private final static DataNotFound DATA_NOT_FOUND =
+            new DataNotFound("Id or UserId  does not exist");
     private final UserJournalRepository userJournalRepository;
+    private final JournalRepository journalRepository;
+    private final JournalSyncRepository journalSyncRepository;
+    private final Mappers modelMapper;
 
-    public JournalService(UserJournalRepository userJournalRepository) {
+    public JournalService(UserJournalRepository userJournalRepository, JournalRepository journalRepository, JournalSyncRepository journalSyncRepository, Mappers modelMapper) {
         this.userJournalRepository = userJournalRepository;
+        this.journalRepository = journalRepository;
+        this.journalSyncRepository = journalSyncRepository;
+        this.modelMapper = modelMapper;
     }
 
 
     public Integer findUserJournalId(Integer userId) {
-        try{
+        try {
             return userJournalRepository.findUserJournalId(userId);
-        }catch (DataAccessException ex){
-            throw new DataNotFound(String.format("Could not find journal id with user id : %d",userId));
+        } catch (DataAccessException ex) {
+            throw new DataNotFound(String.format("Could not find journal id with user id : %d", userId));
         }
     }
+
+    //Confirm the right userId and journal Id
+    //Turn journalDTO to journal
+    //Add those to journal table
+    public void pullJournals(JournalList journalList) {
+        try {
+            UserJournal userJournal = userJournalRepository
+                    .findByIdAndUserId(journalList.getUserJournalId(),
+                            journalList.getUserId());
+            if (userJournal == null) {
+                throw DATA_NOT_FOUND;
+            }
+            List<Journal> journals = modelMapper.mapList(journalList.getJournals(), Journal.class);
+            journalRepository.saveAllAndFlush(journals);
+
+        } catch (DataAccessException ex) {
+            throw new ServerError("Could not perform pull request");
+        }
+    }
+    //Reminder -  Add create sync in
+    //Find JournalSync
+    //compare time
+    // return the appropriate string
+    public String instructJournalSync(SyncDto syncDto) {
+        try{
+            JournalSync journalSync = journalSyncRepository
+                    .findById(syncDto.getUserId(),syncDto.getId());
+            return instruction(journalSync.getPulled(),journalSync.getPushed());
+        }catch (DataAccessException | NullPointerException ex) {
+            throw DATA_NOT_FOUND;
+        }
+    }
+
+    private String instruction(LocalDateTime pulled, LocalDateTime pushed) {
+        String PULL = "PULL", PUSH ="PUSH", NONE ="NONE";
+        if(pulled.isEqual(pushed)){
+            return NONE;
+        }
+        return pulled.isAfter(pushed) ?PUSH : PULL;
+
+    }
+
 }
