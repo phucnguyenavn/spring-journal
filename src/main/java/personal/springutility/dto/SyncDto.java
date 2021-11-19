@@ -6,4 +6,5 @@ import lombok.Data;
 public class SyncDto {
     private Integer userId;
     private Integer id;
+    private Integer journalLength;
 }

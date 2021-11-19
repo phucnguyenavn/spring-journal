@@ -29,9 +29,9 @@ public class JournalController {
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
-    @PostMapping(Endpoints.PULL_JOURNAL)
-    public ResponseEntity<?> pullJournals(@RequestBody JournalList journalList) {
-        journalService.pullJournals(journalList);
+    @PostMapping(Endpoints.PUSH_JOURNALS)
+    public ResponseEntity<?> pushJournals(@RequestBody JournalList journalList) {
+        journalService.pushJournals(journalList);
         return ResponseEntity.ok("Successfully pulled journals");
     }
 

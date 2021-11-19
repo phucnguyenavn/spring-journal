@@ -1,5 +1,6 @@
 package personal.springutility.model.journal;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ public class Journal {
     private String title;
     private String content;
     private String emoji;
+
     private LocalDate created;
 
     @Column(columnDefinition =

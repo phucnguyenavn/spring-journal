@@ -1,6 +1,7 @@
 package personal.springutility.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ public class JournalDto {
 
     private String mood;
 
-    @JsonFormat(pattern = "MM-dd-yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     private LocalDate created;
 
 }

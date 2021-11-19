@@ -14,8 +14,8 @@ import personal.springutility.repository.JournalSyncRepository;
 import personal.springutility.repository.UserJournalRepository;
 import personal.springutility.util.Mappers;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Service
@@ -46,7 +46,8 @@ public class JournalService {
     //Confirm the right userId and journal Id
     //Turn journalDTO to journal
     //Add those to journal table
-    public void pullJournals(JournalList journalList) {
+    //Set push time
+    public void pushJournals(JournalList journalList) {
         try {
             UserJournal userJournal = userJournalRepository
                     .findByIdAndUserId(journalList.getUserJournalId(),
@@ -54,7 +55,7 @@ public class JournalService {
             if (userJournal == null) {
                 throw ERROR.DATA_NOT_FOUND;
             }
-            List<Journal> journals = modelMapper.mapList(journalList.getJournals(), Journal.class);
+            List<Journal> journals = modelMapper.mapList(journalList.getJournals(), Journal.class, userJournal);
             journalRepository.saveAllAndFlush(journals);
 
         } catch (DataAccessException ex) {
@@ -62,27 +63,26 @@ public class JournalService {
         }
     }
 
-    //Reminder -  Add create sync in
-    //Find JournalSync
-    //compare time
-    // return the appropriate string
     public String instructJournalSync(SyncDto syncDto) {
         try {
-            JournalSync journalSync = journalSyncRepository
+            Optional<JournalSync> journalSync = journalSyncRepository
                     .findById(syncDto.getUserId(), syncDto.getId());
-            return instruction(journalSync.getPulled(), journalSync.getPushed());
-        } catch (DataAccessException | NullPointerException ex) {
+            return instruction(journalSync.orElseThrow(
+                    () -> ERROR.DATA_NOT_FOUND), syncDto.getJournalLength());
+        } catch (DataAccessException ex) {
             throw ERROR.DATA_NOT_FOUND;
         }
     }
 
-    private String instruction(LocalDateTime pulled, LocalDateTime pushed) {
+    private String instruction(JournalSync journalSync, Integer journalLength) {
         String PULL = "PULL", PUSH = "PUSH", NONE = "NONE";
-        if (pulled.isEqual(pushed)) {
+        long dbJournalLength = journalRepository
+                .count(journalSync.getId().getUserJournalId(),
+                        journalSync.getId().getUserId());
+        if (dbJournalLength == journalLength) {
             return NONE;
         }
-        return pulled.isAfter(pushed) ? PUSH : PULL;
-
+        return dbJournalLength > journalLength ? PULL : PUSH;
     }
 
 }
