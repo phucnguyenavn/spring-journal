@@ -3,7 +3,10 @@ package personal.springutility.controller;
 
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import personal.springutility.dto.JournalList;
 import personal.springutility.dto.SyncDto;
 import personal.springutility.service.JournalService;
@@ -21,18 +24,19 @@ public class JournalController {
     }
 
     @PostMapping(Endpoints.FIND_USER_JOURNAL_ID)
-    public ResponseEntity<?> findUserJournalId(@Param("userId") Integer userId){
+    public ResponseEntity<?> findUserJournalId(@Param("userId") Integer userId) {
         Integer id = journalService.findUserJournalId(userId);
         return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
     @PostMapping(Endpoints.PULL_JOURNAL)
-    public ResponseEntity<?> pullJournals(@RequestBody JournalList journalList){
+    public ResponseEntity<?> pullJournals(@RequestBody JournalList journalList) {
         journalService.pullJournals(journalList);
         return ResponseEntity.ok("Successfully pulled journals");
     }
-    @PostMapping(Endpoints.INSTRUCT_SYNC_JOURNAL)
-    public ResponseEntity<?> instructJournalSync(@RequestBody SyncDto syncDto){
+
+    @PostMapping(Endpoints.INSTRUCT_JOURNAL_SYNC)
+    public ResponseEntity<?> instructJournalSync(@RequestBody SyncDto syncDto) {
         String instruction = journalService.instructJournalSync(syncDto);
         return ResponseEntity.ok(Collections.singletonMap("instruction", instruction));
     }

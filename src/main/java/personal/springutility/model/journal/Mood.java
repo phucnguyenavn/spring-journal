@@ -14,6 +14,7 @@ public enum Mood {
     AWESOME(5);
 
     private final int value;
+
     Mood(int value) {
         this.value = value;
     }

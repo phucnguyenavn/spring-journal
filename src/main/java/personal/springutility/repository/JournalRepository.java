@@ -8,5 +8,4 @@ import personal.springutility.model.journal.Journal;
 public interface JournalRepository extends JpaRepository<Journal, Integer> {
 
 
-
 }

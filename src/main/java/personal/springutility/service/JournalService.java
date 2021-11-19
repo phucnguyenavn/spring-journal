@@ -5,8 +5,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import personal.springutility.dto.JournalList;
 import personal.springutility.dto.SyncDto;
-import personal.springutility.exception.DataNotFound;
-import personal.springutility.exception.ServerError;
+import personal.springutility.exception.model.ERROR;
 import personal.springutility.model.journal.Journal;
 import personal.springutility.model.journal.UserJournal;
 import personal.springutility.model.sync.JournalSync;
@@ -22,8 +21,7 @@ import java.util.List;
 @Service
 public class JournalService {
 
-    private final static DataNotFound DATA_NOT_FOUND =
-            new DataNotFound("Id or UserId  does not exist");
+
     private final UserJournalRepository userJournalRepository;
     private final JournalRepository journalRepository;
     private final JournalSyncRepository journalSyncRepository;
@@ -41,7 +39,7 @@ public class JournalService {
         try {
             return userJournalRepository.findUserJournalId(userId);
         } catch (DataAccessException ex) {
-            throw new DataNotFound(String.format("Could not find journal id with user id : %d", userId));
+            throw ERROR.DATA_NOT_FOUND;
         }
     }
 
@@ -54,35 +52,36 @@ public class JournalService {
                     .findByIdAndUserId(journalList.getUserJournalId(),
                             journalList.getUserId());
             if (userJournal == null) {
-                throw DATA_NOT_FOUND;
+                throw ERROR.DATA_NOT_FOUND;
             }
             List<Journal> journals = modelMapper.mapList(journalList.getJournals(), Journal.class);
             journalRepository.saveAllAndFlush(journals);
 
         } catch (DataAccessException ex) {
-            throw new ServerError("Could not perform pull request");
+            throw ERROR.SERVER_WENT_WRONG;
         }
     }
+
     //Reminder -  Add create sync in
     //Find JournalSync
     //compare time
     // return the appropriate string
     public String instructJournalSync(SyncDto syncDto) {
-        try{
+        try {
             JournalSync journalSync = journalSyncRepository
-                    .findById(syncDto.getUserId(),syncDto.getId());
-            return instruction(journalSync.getPulled(),journalSync.getPushed());
-        }catch (DataAccessException | NullPointerException ex) {
-            throw DATA_NOT_FOUND;
+                    .findById(syncDto.getUserId(), syncDto.getId());
+            return instruction(journalSync.getPulled(), journalSync.getPushed());
+        } catch (DataAccessException | NullPointerException ex) {
+            throw ERROR.DATA_NOT_FOUND;
         }
     }
 
     private String instruction(LocalDateTime pulled, LocalDateTime pushed) {
-        String PULL = "PULL", PUSH ="PUSH", NONE ="NONE";
-        if(pulled.isEqual(pushed)){
+        String PULL = "PULL", PUSH = "PUSH", NONE = "NONE";
+        if (pulled.isEqual(pushed)) {
             return NONE;
         }
-        return pulled.isAfter(pushed) ?PUSH : PULL;
+        return pulled.isAfter(pushed) ? PUSH : PULL;
 
     }
 
