@@ -15,7 +15,7 @@ public enum Mood {
 
     private final int value;
 
-    Mood(int value) {
+     Mood(int value) {
         this.value = value;
     }
 

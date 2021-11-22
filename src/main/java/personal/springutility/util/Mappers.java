@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import personal.springutility.dto.JournalDto;
 import personal.springutility.model.journal.Journal;
+import personal.springutility.model.journal.Mood;
 import personal.springutility.model.journal.UserJournal;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class Mappers {
                 .stream()
                 .map(element -> {
                    Journal journal =  modelMapper.map(element, journalClass);
+                   journal.setMood(Mood.of(element.getMood()));
                    journal.setUserJournal(userJournal);
                    return journal;
                 })

@@ -16,7 +16,7 @@ public class JournalDto {
 
     private String content;
 
-    private String mood;
+    private Integer mood;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     private LocalDate created;

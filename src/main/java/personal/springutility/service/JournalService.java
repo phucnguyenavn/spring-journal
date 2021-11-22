@@ -55,8 +55,9 @@ public class JournalService {
             if (userJournal == null) {
                 throw ERROR.DATA_NOT_FOUND;
             }
-            List<Journal> journals = modelMapper.mapList(journalList.getJournals(), Journal.class, userJournal);
-            journalRepository.saveAllAndFlush(journals);
+            List<Journal> journals = modelMapper.mapList(journalList.getJournals(),
+                    Journal.class, userJournal);
+            addOrUpdate(journals);
 
         } catch (DataAccessException ex) {
             throw ERROR.SERVER_WENT_WRONG;
@@ -83,6 +84,17 @@ public class JournalService {
             return NONE;
         }
         return dbJournalLength > journalLength ? PULL : PUSH;
+    }
+
+    private void addOrUpdate(List<Journal> journals) {
+        for (Journal journalInput : journals) {
+            Optional<Journal> journal = journalRepository.
+                    findByCreated(journalInput.getCreated());
+            if (journal.isPresent()) {
+                journalRepository.update(journal.get());
+            } else
+                journalRepository.save(journalInput);
+        }
     }
 
 }

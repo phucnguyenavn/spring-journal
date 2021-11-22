@@ -17,8 +17,7 @@ public class SpringUtilityApplication {
     public ModelMapper mapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
-                .setFieldMatchingEnabled(true)
-                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
+                .setFieldMatchingEnabled(true);
         return modelMapper;
     }
 

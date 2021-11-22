@@ -1,6 +1,5 @@
 package personal.springutility.model.journal;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +27,7 @@ public class Journal {
     private LocalDate created;
 
     @Column(columnDefinition =
-            "ENUM(0,1,2,3,4,5)")
+            "ENUM('0','1','2','3','4','5')")
     @Enumerated(EnumType.ORDINAL)
     private Mood mood;
 

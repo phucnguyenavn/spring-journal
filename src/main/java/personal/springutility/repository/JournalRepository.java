@@ -1,9 +1,13 @@
 package personal.springutility.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import personal.springutility.model.journal.Journal;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Transactional
 public interface JournalRepository extends JpaRepository<Journal, Integer> {
@@ -13,4 +17,11 @@ public interface JournalRepository extends JpaRepository<Journal, Integer> {
             "WHERE j.userJournal.id = ?1 " +
             "and j.userJournal.userId =?2")
     Integer count(Integer userJournalId, Integer userId);
+
+
+    Optional<Journal> findByCreated(LocalDate date);
+
+    @Modifying
+    @Query(value = "UPDATE Journal j SET j = ?1")
+    void update(Journal journal);
 }
