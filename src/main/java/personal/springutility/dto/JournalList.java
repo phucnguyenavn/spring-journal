@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class JournalList {
-    private Integer userId;
-    private Integer userJournalId;
+    private SyncIdDto syncIdDto;
     private List<JournalDto> journals;
 }

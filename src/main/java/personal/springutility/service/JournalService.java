@@ -3,8 +3,10 @@ package personal.springutility.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import personal.springutility.dto.JournalDto;
 import personal.springutility.dto.JournalList;
 import personal.springutility.dto.SyncDto;
+import personal.springutility.dto.SyncIdDto;
 import personal.springutility.exception.model.ERROR;
 import personal.springutility.model.journal.Journal;
 import personal.springutility.model.journal.UserJournal;
@@ -50,8 +52,8 @@ public class JournalService {
     public void pushJournals(JournalList journalList) {
         try {
             UserJournal userJournal = userJournalRepository
-                    .findByIdAndUserId(journalList.getUserJournalId(),
-                            journalList.getUserId());
+                    .findByIdAndUserId(journalList.getSyncIdDto().getId(),
+                            journalList.getSyncIdDto().getUserId());
             if (userJournal == null) {
                 throw ERROR.DATA_NOT_FOUND;
             }
@@ -64,10 +66,19 @@ public class JournalService {
         }
     }
 
+    public List<JournalDto> pullJournals(SyncIdDto syncIdDto){
+        try{
+            List<Journal> journals =  journalRepository.findAllBySyncId(syncIdDto.getUserId(),syncIdDto.getId());
+            return modelMapper.mapList(journals, JournalDto.class);
+        }catch (DataAccessException ex){
+            throw ERROR.SERVER_WENT_WRONG;
+        }
+    }
+
     public String instructJournalSync(SyncDto syncDto) {
         try {
             Optional<JournalSync> journalSync = journalSyncRepository
-                    .findById(syncDto.getUserId(), syncDto.getId());
+                    .findById(syncDto.getSyncIdDto().getUserId(), syncDto.getSyncIdDto().getId());
             return instruction(journalSync.orElseThrow(
                     () -> ERROR.DATA_NOT_FOUND), syncDto.getJournalLength());
         } catch (DataAccessException ex) {

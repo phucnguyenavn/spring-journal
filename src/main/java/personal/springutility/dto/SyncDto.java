@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class SyncDto {
-    private Integer userId;
-    private Integer id;
+    private SyncIdDto syncIdDto;
     private Integer journalLength;
 }

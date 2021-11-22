@@ -27,8 +27,8 @@ public class Journal {
     private LocalDate created;
 
     @Column(columnDefinition =
-            "ENUM('0','1','2','3','4','5')")
-    @Enumerated(EnumType.ORDINAL)
+            "ENUM('NO_RATING','HORRIBLE','BAD','OK','GOOD','AWESOME')")
+    @Enumerated(EnumType.STRING)
     private Mood mood;
 
     @ManyToOne(fetch = FetchType.LAZY)

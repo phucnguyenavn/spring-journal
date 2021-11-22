@@ -3,15 +3,15 @@ package personal.springutility.controller;
 
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import personal.springutility.dto.JournalDto;
 import personal.springutility.dto.JournalList;
 import personal.springutility.dto.SyncDto;
+import personal.springutility.dto.SyncIdDto;
 import personal.springutility.service.JournalService;
 
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping(Mappings.JOURNAL)
@@ -33,6 +33,12 @@ public class JournalController {
     public ResponseEntity<?> pushJournals(@RequestBody JournalList journalList) {
         journalService.pushJournals(journalList);
         return ResponseEntity.ok("Successfully pulled journals");
+    }
+
+    @PostMapping(Endpoints.PULL_JOURNAL)
+    @ResponseBody
+    public List<JournalDto> pullJournals(@RequestBody SyncIdDto syncIdDto){
+        return journalService.pullJournals(syncIdDto);
     }
 
     @PostMapping(Endpoints.INSTRUCT_JOURNAL_SYNC)

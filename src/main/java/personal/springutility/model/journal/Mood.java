@@ -6,22 +6,18 @@ import lombok.Getter;
 @Getter
 public enum Mood {
 
-    NO_RATING(0),
-    HORRIBLE(1),
-    BAD(2),
-    OK(3),
-    GOOD(4),
-    AWESOME(5);
+    NO_RATING,
+    HORRIBLE,
+    BAD,
+    OK,
+    GOOD,
+    AWESOME;
 
-    private final int value;
 
-     Mood(int value) {
-        this.value = value;
-    }
 
-    public static Mood of(Integer mood) {
+    public static Mood of(String mood) {
         for (Mood r : values()) {
-            if (r.getValue() == mood) {
+            if (r.name().equals(mood)) {
                 return r;
             }
         }
