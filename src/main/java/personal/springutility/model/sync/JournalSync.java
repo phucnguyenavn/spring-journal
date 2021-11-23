@@ -14,7 +14,6 @@ public class JournalSync {
 
     @EmbeddedId
     private SyncId id;
-    private LocalDateTime pulled;
     private LocalDateTime pushed;
 
 }

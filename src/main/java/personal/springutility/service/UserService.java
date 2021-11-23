@@ -95,7 +95,6 @@ public class UserService {
         syncId.setUserId(user.getId());
         syncId.setUserJournalId(userJournal.getId());
         journalSync.setId(syncId);
-        journalSync.setPulled(now);
         journalSync.setPushed(now);
         return journalSync;
     }

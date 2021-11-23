@@ -1,7 +1,6 @@
 package personal.springutility.util;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
 import org.springframework.stereotype.Component;
 import personal.springutility.dto.JournalDto;
 import personal.springutility.model.journal.Journal;
@@ -37,7 +36,7 @@ public class Mappers {
 
         return source
                 .stream()
-                .map(element ->  modelMapper.map(element, journalDtoClass))
+                .map(element -> modelMapper.map(element, journalDtoClass))
                 .collect(Collectors.toList());
     }
 }

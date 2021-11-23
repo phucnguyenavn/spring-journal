@@ -16,6 +16,7 @@ import personal.springutility.repository.JournalSyncRepository;
 import personal.springutility.repository.UserJournalRepository;
 import personal.springutility.util.Mappers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,26 +52,31 @@ public class JournalService {
     //Set push time
     public void pushJournals(JournalList journalList) {
         try {
+            int id = journalList.getSyncIdDto().getId();
+            int userId = journalList.getSyncIdDto().getUserId();
             UserJournal userJournal = userJournalRepository
-                    .findByIdAndUserId(journalList.getSyncIdDto().getId(),
-                            journalList.getSyncIdDto().getUserId());
+                    .findByIdAndUserId(id, userId);
             if (userJournal == null) {
                 throw ERROR.DATA_NOT_FOUND;
             }
             List<Journal> journals = modelMapper.mapList(journalList.getJournals(),
                     Journal.class, userJournal);
             addOrUpdate(journals);
-
+            Optional<JournalSync> journalSync = journalSyncRepository.findById(userId, id);
+            journalSync.ifPresent(j -> {
+                j.setPushed(LocalDateTime.now());
+                journalSyncRepository.save(journalSync.get());
+            });
         } catch (DataAccessException ex) {
             throw ERROR.SERVER_WENT_WRONG;
         }
     }
 
-    public List<JournalDto> pullJournals(SyncIdDto syncIdDto){
-        try{
-            List<Journal> journals =  journalRepository.findAllBySyncId(syncIdDto.getUserId(),syncIdDto.getId());
+    public List<JournalDto> pullJournals(SyncIdDto syncIdDto) {
+        try {
+            List<Journal> journals = journalRepository.findAllBySyncId(syncIdDto.getUserId(), syncIdDto.getId());
             return modelMapper.mapList(journals, JournalDto.class);
-        }catch (DataAccessException ex){
+        } catch (DataAccessException ex) {
             throw ERROR.SERVER_WENT_WRONG;
         }
     }
@@ -88,9 +94,9 @@ public class JournalService {
 
     private String instruction(JournalSync journalSync, Integer journalLength) {
         String PULL = "PULL", PUSH = "PUSH", NONE = "NONE";
-        long dbJournalLength = journalRepository
-                .count(journalSync.getId().getUserJournalId(),
-                        journalSync.getId().getUserId());
+        int userJournalId = journalSync.getId().getUserJournalId();
+        int userId = journalSync.getId().getUserId();
+        long dbJournalLength = journalRepository.count(userJournalId, userId);
         if (dbJournalLength == journalLength) {
             return NONE;
         }
@@ -102,7 +108,7 @@ public class JournalService {
             Optional<Journal> journal = journalRepository.
                     findByCreated(journalInput.getCreated());
             if (journal.isPresent()) {
-                journalRepository.update(journal.get());
+                journalRepository.update(journal.get().getCreated(), journalInput);
             } else
                 journalRepository.save(journalInput);
         }

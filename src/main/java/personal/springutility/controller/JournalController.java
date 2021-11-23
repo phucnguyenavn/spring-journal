@@ -37,7 +37,7 @@ public class JournalController {
 
     @PostMapping(Endpoints.PULL_JOURNAL)
     @ResponseBody
-    public List<JournalDto> pullJournals(@RequestBody SyncIdDto syncIdDto){
+    public List<JournalDto> pullJournals(@RequestBody SyncIdDto syncIdDto) {
         return journalService.pullJournals(syncIdDto);
     }
 

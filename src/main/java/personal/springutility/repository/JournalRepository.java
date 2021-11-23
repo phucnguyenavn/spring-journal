@@ -3,9 +3,8 @@ package personal.springutility.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
-import personal.springutility.dto.JournalDto;
-import personal.springutility.dto.SyncIdDto;
 import personal.springutility.model.journal.Journal;
 
 import java.time.LocalDate;
@@ -25,8 +24,13 @@ public interface JournalRepository extends JpaRepository<Journal, Integer> {
     Optional<Journal> findByCreated(LocalDate date);
 
     @Modifying
-    @Query(value = "UPDATE Journal j SET j = ?1")
-    void update(Journal journal);
+    @Query(value = "UPDATE Journal  j " +
+            "SET j.content = :#{#journal.content}, " +
+            "j.emoji = :#{#journal.emoji}, " +
+            "j.title = :#{#journal.title}," +
+            "j.mood = :#{#journal.mood} " +
+            "WHERE j.created = :created")
+    void update(@Param("created") LocalDate created, @Param("journal") Journal journal);
 
     @Query(value = "SELECT j from Journal j " +
             "WHERE j.userJournal.id =?2 " +
