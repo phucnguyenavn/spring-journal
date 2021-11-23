@@ -1,29 +1,27 @@
 package personal.springutility.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import personal.springutility.dto.UserToRegisterDto;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import personal.springutility.service.UserService;
 
-import javax.validation.Valid;
+import java.util.Collections;
 
 @RestController
-@RequestMapping(Mappings.REGISTRATION)
+@RequestMapping(Mappings.USER)
 public class UserController {
 
     private final UserService userService;
 
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Object> register(@RequestBody @Valid UserToRegisterDto user) {
-        userService.register(user);
-        return ResponseEntity.status(HttpStatus.OK).body("user created");
+    @PostMapping(Endpoints.FIND_USER_ID)
+    public ResponseEntity<Object> findUserId(@RequestParam("email") String email) {
+        Integer id = userService.findByEmail(email);
+        return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 }

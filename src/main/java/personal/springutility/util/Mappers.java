@@ -1,8 +1,11 @@
 package personal.springutility.util;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import personal.springutility.dto.JournalDto;
+import personal.springutility.model.journal.Journal;
+import personal.springutility.model.journal.Mood;
+import personal.springutility.model.journal.UserJournal;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,14 +13,30 @@ import java.util.stream.Collectors;
 @Component
 public class Mappers {
 
-    @Autowired
-    private ModelMapper modelMapper;
 
-    public <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {
+    private final ModelMapper modelMapper;
+
+    public Mappers(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+    }
+
+    public List<Journal> mapList(List<JournalDto> source, Class<Journal> journalClass, UserJournal userJournal) {
         return source
                 .stream()
-                .map(element -> modelMapper.map(element, targetClass))
+                .map(element -> {
+                    Journal journal = modelMapper.map(element, journalClass);
+                    journal.setMood(Mood.of(element.getMood()));
+                    journal.setUserJournal(userJournal);
+                    return journal;
+                })
                 .collect(Collectors.toList());
     }
 
+    public List<JournalDto> mapList(List<Journal> source, Class<JournalDto> journalDtoClass) {
+
+        return source
+                .stream()
+                .map(element -> modelMapper.map(element, journalDtoClass))
+                .collect(Collectors.toList());
+    }
 }

@@ -4,7 +4,7 @@ package personal.springutility.model.journal;
 import lombok.Getter;
 
 @Getter
-public enum RatingScale {
+public enum Mood {
 
     NO_RATING,
     HORRIBLE,
@@ -13,9 +13,10 @@ public enum RatingScale {
     GOOD,
     AWESOME;
 
-    public static RatingScale of(String scale) {
-        for (RatingScale r : values()) {
-            if (r.name().equals(scale)) {
+
+    public static Mood of(String mood) {
+        for (Mood r : values()) {
+            if (r.name().equals(mood)) {
                 return r;
             }
         }

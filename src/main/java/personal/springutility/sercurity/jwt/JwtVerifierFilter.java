@@ -4,6 +4,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import personal.springutility.controller.Mappings;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -24,7 +25,7 @@ public class JwtVerifierFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!request.getServletPath().equals("/api/login")) {
+        if (!request.getServletPath().equals(Mappings.AUTH)) {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 JwtUtils jwtUtils = new JwtUtils(jwtConfig);

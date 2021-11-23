@@ -3,125 +3,115 @@ package personal.springutility.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import personal.springutility.dto.PageDto;
-import personal.springutility.dto.PartOfPageDto;
-import personal.springutility.exception.DataNotFound;
-import personal.springutility.exception.ServerError;
-import personal.springutility.model.journal.Page;
-import personal.springutility.model.journal.RatingScale;
-import personal.springutility.model.journal.UserCreatedPage;
-import personal.springutility.repository.PageRepository;
-import personal.springutility.repository.UserCreatedPageRepository;
-import personal.springutility.util.StringUtils;
+import personal.springutility.dto.JournalDto;
+import personal.springutility.dto.JournalList;
+import personal.springutility.dto.SyncDto;
+import personal.springutility.dto.SyncIdDto;
+import personal.springutility.exception.model.ERROR;
+import personal.springutility.model.journal.Journal;
+import personal.springutility.model.journal.UserJournal;
+import personal.springutility.model.sync.JournalSync;
+import personal.springutility.repository.JournalRepository;
+import personal.springutility.repository.JournalSyncRepository;
+import personal.springutility.repository.UserJournalRepository;
+import personal.springutility.util.Mappers;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Log4j2
 @Service
 public class JournalService {
 
-    private static final String ADD_ERROR = "Could not add new page";
-    private static final String FIND_ERROR = "Could not retrieve journal page(s)";
-    private static final String DELETE_ERROR = "Could not delete page";
-    private static final String UPDATE_ERROR = "Could not update page";
 
-    private final PageRepository pageRepository;
-    private final UserCreatedPageRepository userCreatedPageRepository;
-    private final StringUtils stringUtils;
+    private final UserJournalRepository userJournalRepository;
+    private final JournalRepository journalRepository;
+    private final JournalSyncRepository journalSyncRepository;
+    private final Mappers modelMapper;
 
-    public JournalService(PageRepository pageRepository, UserCreatedPageRepository userCreatedPageRepository, StringUtils stringUtils) {
-        this.pageRepository = pageRepository;
-        this.userCreatedPageRepository = userCreatedPageRepository;
-        this.stringUtils = stringUtils;
-
+    public JournalService(UserJournalRepository userJournalRepository, JournalRepository journalRepository, JournalSyncRepository journalSyncRepository, Mappers modelMapper) {
+        this.userJournalRepository = userJournalRepository;
+        this.journalRepository = journalRepository;
+        this.journalSyncRepository = journalSyncRepository;
+        this.modelMapper = modelMapper;
     }
 
-    public void addPage(Integer userId, PageDto pageDto) {
+
+    public Integer findUserJournalId(Integer userId) {
         try {
-            UserCreatedPage userCreatedPage = userCreatedPageRepository.findByUserId(userId);
-            Page page = toPage(pageDto);
-            page.setUserCreatedPage(userCreatedPage);
-            pageRepository.save(page);
-        } catch (DataAccessException | NullPointerException ex) {
-            throw new ServerError(ADD_ERROR);
+            return userJournalRepository.findUserJournalId(userId);
+        } catch (DataAccessException ex) {
+            throw ERROR.DATA_NOT_FOUND;
         }
     }
 
-    public List<PartOfPageDto> findAll(Integer userId, Integer createdPageId) {
+    //Confirm the right userId and journal Id
+    //Turn journalDTO to journal
+    //Add those to journal table
+    //Set push time
+    public void pushJournals(JournalList journalList) {
         try {
-            List<Page> pages = pageRepository.findAll(userId, createdPageId);
-            return toPartOfPageDtoList(pages);
-        } catch (DataAccessException | NullPointerException ex) {
-            throw new DataNotFound(FIND_ERROR);
+            int id = journalList.getSyncIdDto().getId();
+            int userId = journalList.getSyncIdDto().getUserId();
+            UserJournal userJournal = userJournalRepository
+                    .findByIdAndUserId(id, userId);
+            if (userJournal == null) {
+                throw ERROR.DATA_NOT_FOUND;
+            }
+            List<Journal> journals = modelMapper.mapList(journalList.getJournals(),
+                    Journal.class, userJournal);
+            addOrUpdate(journals);
+            Optional<JournalSync> journalSync = journalSyncRepository.findById(userId, id);
+            journalSync.ifPresent(j -> {
+                j.setPushed(LocalDateTime.now());
+                journalSyncRepository.save(journalSync.get());
+            });
+        } catch (DataAccessException ex) {
+            throw ERROR.SERVER_WENT_WRONG;
         }
     }
 
-    public PageDto findOne(Integer pageId, Integer createdPageId) {
+    public List<JournalDto> pullJournals(SyncIdDto syncIdDto) {
         try {
-            Page page = pageRepository.findOne(pageId, createdPageId);
-            return toPageDto(page);
-        } catch (DataAccessException | NullPointerException ex) {
-            throw new DataNotFound(FIND_ERROR);
+            List<Journal> journals = journalRepository.findAllBySyncId(syncIdDto.getUserId(), syncIdDto.getId());
+            return modelMapper.mapList(journals, JournalDto.class);
+        } catch (DataAccessException ex) {
+            throw ERROR.SERVER_WENT_WRONG;
         }
     }
 
-    public void deleteOne(Integer userId, Integer createdPageId, Integer pageId) {
+    public String instructJournalSync(SyncDto syncDto) {
         try {
-            pageRepository.deleteOne(userId, createdPageId, pageId);
-        } catch (DataAccessException | NullPointerException ex) {
-            throw new ServerError(DELETE_ERROR);
+            Optional<JournalSync> journalSync = journalSyncRepository
+                    .findById(syncDto.getSyncIdDto().getUserId(), syncDto.getSyncIdDto().getId());
+            return instruction(journalSync.orElseThrow(
+                    () -> ERROR.DATA_NOT_FOUND), syncDto.getJournalLength());
+        } catch (DataAccessException ex) {
+            throw ERROR.DATA_NOT_FOUND;
         }
     }
 
-    public void update(Integer userId, Integer createdPageId, PageDto pageDto) {
-        try {
-            UserCreatedPage userCreatedPage = userCreatedPageRepository.findByUserId(userId);
-            Page page = pageRepository.findOne(pageDto.getId(), createdPageId);
-            page.setEmoji(stringUtils.toByte(pageDto.getEmoji()));
-            page.setContent(pageDto.getContent());
-            page.setScale(RatingScale.of(pageDto.getScale()));
-            page.setCreated(pageDto.getCreated());
-            page.setTitle(pageDto.getTitle());
-            page.setUserCreatedPage(userCreatedPage);
-            pageRepository.save(page);
-        } catch (DataAccessException | NullPointerException ex) {
-            throw new ServerError(UPDATE_ERROR);
+    private String instruction(JournalSync journalSync, Integer journalLength) {
+        String PULL = "PULL", PUSH = "PUSH", NONE = "NONE";
+        int userJournalId = journalSync.getId().getUserJournalId();
+        int userId = journalSync.getId().getUserId();
+        long dbJournalLength = journalRepository.count(userJournalId, userId);
+        if (dbJournalLength == journalLength) {
+            return NONE;
+        }
+        return dbJournalLength > journalLength ? PULL : PUSH;
+    }
+
+    private void addOrUpdate(List<Journal> journals) {
+        for (Journal journalInput : journals) {
+            Optional<Journal> journal = journalRepository.
+                    findByCreated(journalInput.getCreated());
+            if (journal.isPresent()) {
+                journalRepository.update(journal.get().getCreated(), journalInput);
+            } else
+                journalRepository.save(journalInput);
         }
     }
 
-    private Page toPage(PageDto pageDto) {
-        return Page.builder()
-                .id(pageDto.getId())
-                .title(pageDto.getTitle())
-                .content(pageDto.getContent())
-                .created(pageDto.getCreated())
-                .emoji(stringUtils.toByte(pageDto.getEmoji()))
-                .scale(RatingScale.of(pageDto.getScale()))
-                .build();
-    }
-
-    private PageDto toPageDto(Page page) {
-        return PageDto.builder()
-                .id(page.getId())
-                .title(page.getTitle())
-                .content(page.getContent())
-                .emoji(stringUtils.toBase64(page.getEmoji()))
-                .scale(page.getScale().name())
-                .created(page.getCreated())
-                .build();
-    }
-
-    private List<PartOfPageDto> toPartOfPageDtoList(List<Page> pages) {
-        return pages
-                .stream()
-                .map(page ->
-                        PartOfPageDto.builder()
-                                .id(page.getId())
-                                .created(page.getCreated())
-                                .title(page.getTitle())
-                                .emoji(stringUtils.toBase64(page.getEmoji()))
-                                .build())
-                .collect(Collectors.toList());
-    }
 }

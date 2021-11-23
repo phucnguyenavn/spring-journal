@@ -1,20 +1,24 @@
 package personal.springutility.service;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import personal.springutility.dto.UserToRegisterDto;
 import personal.springutility.exception.DataNotFound;
-import personal.springutility.exception.ResourceExisted;
+import personal.springutility.exception.model.ERROR;
 import personal.springutility.model.account.Role;
 import personal.springutility.model.account.RoleType;
 import personal.springutility.model.account.User;
-import personal.springutility.model.journal.UserCreatedPage;
+import personal.springutility.model.journal.UserJournal;
+import personal.springutility.model.sync.JournalSync;
+import personal.springutility.model.sync.SyncId;
+import personal.springutility.repository.JournalSyncRepository;
 import personal.springutility.repository.RoleRepository;
-import personal.springutility.repository.UserCreatedPageRepository;
+import personal.springutility.repository.UserJournalRepository;
 import personal.springutility.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,18 +26,20 @@ import java.util.Set;
 @Service
 public class UserService {
 
-    private static final String EMAIL_ALREADY_EXISTS = "This %s already registered";
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserCreatedPageRepository userCreatedPageRepository;
+    private final UserJournalRepository userJournalRepository;
+    private final JournalSyncRepository journalSyncRepository;
 
-    @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserCreatedPageRepository userCreatedPageRepository) {
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserJournalRepository userJournalRepository, JournalSyncRepository journalSyncRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userCreatedPageRepository = userCreatedPageRepository;
+        this.userJournalRepository = userJournalRepository;
+        this.journalSyncRepository = journalSyncRepository;
+
     }
 
 
@@ -45,14 +51,24 @@ public class UserService {
         findEmail(userToRegisterDto.getEmail());
         User user = createNewUser(userToRegister);
         userRepository.save(user);
-        userCreatedPageRepository.save(createUserCreatedPage(user));
+        UserJournal userJournal = createUserJournal(user);
+        userJournalRepository.save(userJournal);
+        journalSyncRepository.save(createJournalSync(user, userJournal));
         return userToRegister;
+    }
+
+    public Integer findByEmail(String email) {
+        try {
+            return userRepository.findIdByEmail(email);
+        } catch (DataAccessException ex) {
+            throw ERROR.DATA_NOT_FOUND;
+        }
     }
 
     private void findEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
-            throw new ResourceExisted(String.format(EMAIL_ALREADY_EXISTS, email));
+            throw ERROR.DATA_ALREADY_EXISTED;
         }
     }
 
@@ -66,9 +82,21 @@ public class UserService {
                 .build();
     }
 
-    private UserCreatedPage createUserCreatedPage(User user) {
-        UserCreatedPage userCreatedPage = new UserCreatedPage();
-        userCreatedPage.setUserId(user.getId());
-        return userCreatedPage;
+    private UserJournal createUserJournal(User user) {
+        UserJournal userJournal = new UserJournal();
+        userJournal.setUserId(user.getId());
+        return userJournal;
     }
+
+    private JournalSync createJournalSync(User user, UserJournal userJournal) {
+        LocalDateTime now = LocalDateTime.now();
+        JournalSync journalSync = new JournalSync();
+        SyncId syncId = new SyncId();
+        syncId.setUserId(user.getId());
+        syncId.setUserJournalId(userJournal.getId());
+        journalSync.setId(syncId);
+        journalSync.setPushed(now);
+        return journalSync;
+    }
+
 }

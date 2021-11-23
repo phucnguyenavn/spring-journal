@@ -7,40 +7,34 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-@Entity(name = "Page")
-@Table(name = "page")
+@Entity(name = "Journal")
+@Table(name = "journal")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Page {
+public class Journal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String title;
     private String content;
-    @Lob
-    private byte[] emoji;
-    private LocalDateTime created;
+    private String emoji;
+
+    private LocalDate created;
 
     @Column(columnDefinition =
             "ENUM('NO_RATING','HORRIBLE','BAD','OK','GOOD','AWESOME')")
     @Enumerated(EnumType.STRING)
-    private RatingScale scale;
+    private Mood mood;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_created_page_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_journal_id", referencedColumnName = "id")
     @JsonIgnore
-    private UserCreatedPage userCreatedPage;
+    private UserJournal userJournal;
 
-    public Page(Integer id, String title, byte[] emoji, LocalDateTime created) {
-        this.id = id;
-        this.title = title;
-        this.emoji = emoji;
-        this.created = created;
-    }
 
 }

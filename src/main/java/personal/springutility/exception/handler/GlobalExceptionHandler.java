@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import personal.springutility.exception.AlreadyExisted;
 import personal.springutility.exception.BadEmailPassword;
 import personal.springutility.exception.DataNotFound;
-import personal.springutility.exception.ResourceExisted;
 import personal.springutility.exception.ServerError;
 import personal.springutility.exception.model.ExceptionResponse;
 
@@ -45,8 +45,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(ResourceExisted.class)
-    public ResponseEntity<ExceptionResponse> resourceExisted(ResourceExisted ex) {
+    @ExceptionHandler(AlreadyExisted.class)
+    public ResponseEntity<ExceptionResponse> resourceExisted(AlreadyExisted ex) {
         ExceptionResponse response = new ExceptionResponse();
         response.setError("CONFLICT");
         response.setMessage(ex.getMessage());

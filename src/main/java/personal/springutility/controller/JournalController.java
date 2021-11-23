@@ -1,12 +1,16 @@
 package personal.springutility.controller;
 
 
-import org.springframework.http.HttpStatus;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import personal.springutility.dto.PageDto;
-import personal.springutility.dto.PartOfPageDto;
+import personal.springutility.dto.JournalDto;
+import personal.springutility.dto.JournalList;
+import personal.springutility.dto.SyncDto;
+import personal.springutility.dto.SyncIdDto;
 import personal.springutility.service.JournalService;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -19,43 +23,27 @@ public class JournalController {
         this.journalService = journalService;
     }
 
-
-    @PostMapping(Endpoints.ADD_PAGE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addPage(@PathVariable Integer userId,
-                        @RequestBody PageDto pageDto) {
-        journalService.addPage(userId, pageDto);
+    @PostMapping(Endpoints.FIND_USER_JOURNAL_ID)
+    public ResponseEntity<?> findUserJournalId(@Param("userId") Integer userId) {
+        Integer id = journalService.findUserJournalId(userId);
+        return ResponseEntity.ok(Collections.singletonMap("id", id));
     }
 
-    @PostMapping(Endpoints.FIND_ALL)
-    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(Endpoints.PUSH_JOURNALS)
+    public ResponseEntity<?> pushJournals(@RequestBody JournalList journalList) {
+        journalService.pushJournals(journalList);
+        return ResponseEntity.ok("Successfully pulled journals");
+    }
+
+    @PostMapping(Endpoints.PULL_JOURNAL)
     @ResponseBody
-    public List<PartOfPageDto> findAll(@PathVariable Integer userId,
-                                       @PathVariable Integer createdPageId) {
-        return journalService.findAll(userId, createdPageId);
+    public List<JournalDto> pullJournals(@RequestBody SyncIdDto syncIdDto) {
+        return journalService.pullJournals(syncIdDto);
     }
 
-    @PostMapping(Endpoints.FIND_ONE)
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public PageDto findOne(@PathVariable Integer createdPageId,
-                           @RequestParam("pageId") Integer pageId) {
-        return journalService.findOne(pageId, createdPageId);
-    }
-
-    @PostMapping(Endpoints.DELETE_ONE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOne(@PathVariable Integer userId,
-                          @PathVariable Integer createdPageId,
-                          @PathVariable Integer pageId) {
-        journalService.deleteOne(userId, createdPageId, pageId);
-    }
-
-    @PostMapping(Endpoints.UPDATE_PAGE)
-    @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable Integer userId,
-                       @PathVariable Integer createdPageId,
-                       @RequestBody PageDto pageDto) {
-        journalService.update(userId, createdPageId, pageDto);
+    @PostMapping(Endpoints.INSTRUCT_JOURNAL_SYNC)
+    public ResponseEntity<?> instructJournalSync(@RequestBody SyncDto syncDto) {
+        String instruction = journalService.instructJournalSync(syncDto);
+        return ResponseEntity.ok(Collections.singletonMap("instruction", instruction));
     }
 }
