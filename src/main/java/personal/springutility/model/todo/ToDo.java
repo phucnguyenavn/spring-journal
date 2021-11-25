@@ -9,7 +9,6 @@ import java.time.LocalDate;
 @MappedSuperclass
 public class ToDo {
 
-
     private String name;
 
     @Column(name = "is_done" )

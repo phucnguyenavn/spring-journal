@@ -3,10 +3,10 @@ package personal.springutility.service;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import personal.springutility.dto.SyncIdDto;
 import personal.springutility.dto.journal.JournalDto;
 import personal.springutility.dto.journal.JournalList;
 import personal.springutility.dto.journal.SyncDto;
-import personal.springutility.dto.SyncIdDto;
 import personal.springutility.exception.model.ERROR;
 import personal.springutility.model.journal.Journal;
 import personal.springutility.model.journal.UserJournal;
@@ -75,7 +75,13 @@ public class JournalService {
     public List<JournalDto> pullJournals(SyncIdDto syncIdDto) {
         try {
             List<Journal> journals = journalRepository.findAllBySyncId(syncIdDto.getUserId(), syncIdDto.getId());
-            return modelMapper.mapList(journals, JournalDto.class);
+            List<JournalDto> journalDtos = modelMapper.mapList(journals, JournalDto.class);
+            Optional<JournalSync> journalSync = journalSyncRepository.findById(syncIdDto.getUserId(), syncIdDto.getId());
+            journalSync.ifPresent(j -> {
+                j.setPulled(LocalDateTime.now());
+                journalSyncRepository.save(journalSync.get());
+            });
+            return journalDtos;
         } catch (DataAccessException ex) {
             throw ERROR.SERVER_WENT_WRONG;
         }
@@ -93,14 +99,10 @@ public class JournalService {
     }
 
     private String instruction(JournalSync journalSync, Integer journalLength) {
-        String PULL = "PULL", PUSH = "PUSH", NONE = "NONE";
         int userJournalId = journalSync.getId().getUserJournalId();
         int userId = journalSync.getId().getUserId();
         long dbJournalLength = journalRepository.count(userJournalId, userId);
-        if (dbJournalLength == journalLength) {
-            return NONE;
-        }
-        return dbJournalLength > journalLength ? PULL : PUSH;
+        return getInstruction(dbJournalLength, journalLength, journalSync);
     }
 
     private void addOrUpdate(List<Journal> journals) {
@@ -114,4 +116,16 @@ public class JournalService {
         }
     }
 
+    private String getInstruction(long dbJournalLength, Integer journalLength, JournalSync journalSync) {
+        String PULL = "PULL", PUSH = "PUSH", NONE = "NONE";
+        if (dbJournalLength == journalLength) {
+            if (journalSync.getPulled().isBefore(journalSync.getPushed())) {
+                return PULL;
+            } else if (journalSync.getPulled().isAfter(journalSync.getPushed())) {
+                return PUSH;
+            }
+            return NONE;
+        }
+        return dbJournalLength > journalLength ? PULL : PUSH;
+    }
 }

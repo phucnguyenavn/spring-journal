@@ -13,16 +13,14 @@ import personal.springutility.model.account.User;
 import personal.springutility.model.journal.UserJournal;
 import personal.springutility.model.sync.JournalSync;
 import personal.springutility.model.sync.SyncId;
-import personal.springutility.repository.JournalSyncRepository;
-import personal.springutility.repository.RoleRepository;
-import personal.springutility.repository.UserJournalRepository;
-import personal.springutility.repository.UserRepository;
+import personal.springutility.model.todo.UserToDo;
+import personal.springutility.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
-@Log4j2
+
 @Service
 public class UserService {
 
@@ -31,17 +29,16 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserJournalRepository userJournalRepository;
     private final JournalSyncRepository journalSyncRepository;
+    private final UserToDoRepository userToDoRepository;
 
-
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserJournalRepository userJournalRepository, JournalSyncRepository journalSyncRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserJournalRepository userJournalRepository, JournalSyncRepository journalSyncRepository, UserToDoRepository userToDoRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userJournalRepository = userJournalRepository;
         this.journalSyncRepository = journalSyncRepository;
-
+        this.userToDoRepository = userToDoRepository;
     }
-
 
     public User register(UserToRegisterDto userToRegisterDto) {
         User userToRegister = User.builder()
@@ -54,6 +51,8 @@ public class UserService {
         UserJournal userJournal = createUserJournal(user);
         userJournalRepository.save(userJournal);
         journalSyncRepository.save(createJournalSync(user, userJournal));
+        UserToDo userToDo = createUserToDo(user);
+        userToDoRepository.save(userToDo);
         return userToRegister;
     }
 
@@ -86,6 +85,12 @@ public class UserService {
         UserJournal userJournal = new UserJournal();
         userJournal.setUserId(user.getId());
         return userJournal;
+    }
+
+    private UserToDo createUserToDo(User user){
+        UserToDo userToDo = new UserToDo();
+        userToDo.setUserId(user.getId());
+        return userToDo;
     }
 
     private JournalSync createJournalSync(User user, UserJournal userJournal) {
