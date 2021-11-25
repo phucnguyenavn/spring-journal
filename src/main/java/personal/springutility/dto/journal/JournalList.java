@@ -1,6 +1,7 @@
-package personal.springutility.dto;
+package personal.springutility.dto.journal;
 
 import lombok.Data;
+import personal.springutility.dto.SyncIdDto;
 
 import java.util.List;
 

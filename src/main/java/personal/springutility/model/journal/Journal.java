@@ -12,9 +12,6 @@ import java.time.LocalDate;
 @Entity(name = "Journal")
 @Table(name = "journal")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Journal {
 
     @Id
@@ -23,7 +20,6 @@ public class Journal {
     private String title;
     private String content;
     private String emoji;
-
     private LocalDate created;
 
     @Column(columnDefinition =
@@ -31,7 +27,8 @@ public class Journal {
     @Enumerated(EnumType.STRING)
     private Mood mood;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,
+            cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "user_journal_id", referencedColumnName = "id")
     @JsonIgnore
     private UserJournal userJournal;

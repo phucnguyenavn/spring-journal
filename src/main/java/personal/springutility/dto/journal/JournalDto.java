@@ -1,4 +1,4 @@
-package personal.springutility.dto;
+package personal.springutility.dto.journal;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

@@ -4,9 +4,9 @@ package personal.springutility.controller;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import personal.springutility.dto.JournalDto;
-import personal.springutility.dto.JournalList;
-import personal.springutility.dto.SyncDto;
+import personal.springutility.dto.journal.JournalDto;
+import personal.springutility.dto.journal.JournalList;
+import personal.springutility.dto.journal.SyncDto;
 import personal.springutility.dto.SyncIdDto;
 import personal.springutility.service.JournalService;
 

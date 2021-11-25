@@ -2,7 +2,7 @@ package personal.springutility.util;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-import personal.springutility.dto.JournalDto;
+import personal.springutility.dto.journal.JournalDto;
 import personal.springutility.model.journal.Journal;
 import personal.springutility.model.journal.Mood;
 import personal.springutility.model.journal.UserJournal;
