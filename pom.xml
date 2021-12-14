@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>personal</groupId>
-    <artifactId>spring-utility</artifactId>
-    <version>0.1</version>
-    <name>spring-utility</name>
-    <description>Demo project for Spring Boot</description>
+    <artifactId>spring-journal</artifactId>
+    <version>0.2</version>
+    <name>spring-journal</name>
+    <description>Journal Web App</description>
     <properties>
         <java.version>11</java.version>
     </properties>

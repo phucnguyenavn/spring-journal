@@ -11,9 +11,7 @@
 ## TODOS
 - ~~User System~~
 - ~~Journal~~
-- Plan how would todo and pomodoro work  
-- Todo 
-- Pomodoro
+
 
 ## Unknown problem
 - Want to validate entity but could not, so choose @Valid controller.
